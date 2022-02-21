@@ -83,10 +83,10 @@ public class DoubleLinkedSeq implements Cloneable
          if (head == null) {
             head = new DoubleNode(element, null);
             manyNodes++;
-            cursor = head.getLink();
+            cursor = head;
          } // end of if
          else {
-            cursor = head.getLink();
+            cursor = head;
             while (cursor.getLink() != null)
                cursor = cursor.getLink();
             cursor.addNodeAfter(element);
@@ -113,16 +113,25 @@ public class DoubleLinkedSeq implements Cloneable
    public void addBefore(double element)
    {
       if (cursor != null) {
-         DoubleNode temp = head;
-         while (temp.getLink() != cursor) {
-            temp = temp.getLink();
+         if (head == cursor) {
+            head = new DoubleNode(element, head);
+            cursor = head;
+            manyNodes++;
          }
-         temp.addNodeAfter(element);
-         cursor = temp.getLink();
-         manyNodes++;
+         else {
+            DoubleNode temp = head;
+            while (temp.getLink() != cursor) {
+               temp = temp.getLink();
+            }
+            temp.addNodeAfter(element);
+            cursor = temp.getLink();
+         }
       } // end of if
       else {
-         head.addNodeAfter(element);
+         if (head != null)
+            head = new DoubleNode(element, head.getLink());
+         else
+            head = new DoubleNode(element, null);
          cursor = head;
          manyNodes++;
       } // end of else
@@ -146,7 +155,12 @@ public class DoubleLinkedSeq implements Cloneable
    **/
    public void addAll(DoubleLinkedSeq addend)
    {
-      // Implemented by student.
+      DoubleNode temp = head;
+      DoubleLinkedSeq add = addend.clone();
+      while (temp.getLink() != null)
+         temp = temp.getLink();
+      temp.setLink(add.head);
+      manyNodes = manyNodes + add.size();
    }   
    
    
@@ -167,7 +181,12 @@ public class DoubleLinkedSeq implements Cloneable
    **/
    public void advance( )
    {
-      // Implemented by student.
+      if (cursor == null)
+         throw new IllegalStateException("There is no current element.");
+      if (cursor.getLink() == null)
+         cursor = null;
+      else
+         cursor = cursor.getLink();
    }
    
    
@@ -181,9 +200,18 @@ public class DoubleLinkedSeq implements Cloneable
    *   Indicates insufficient memory for creating the clone.
    **/ 
    public DoubleLinkedSeq clone( )
-   {  // Clone a DoubleLinkedSeq object.
-      // Student will replace this return statement with their own code:
-      return null;
+   {
+      DoubleLinkedSeq answer;
+
+      try {
+         answer = (DoubleLinkedSeq) super.clone( );
+      } catch (CloneNotSupportedException e) {
+         throw new RuntimeException("This class does not implement Cloneable");
+      } // end of try catch
+
+      answer.head = DoubleNode.listCopy(head);
+
+      return answer;
    }
    
 
@@ -199,15 +227,17 @@ public class DoubleLinkedSeq implements Cloneable
    * @return
    *   a new sequence that has the elements of s1</CODE> followed by the
    *   elements of s2</CODE> (with no current element)
-   * @exception NullPointerException.
+   * @exception NullPointerException
    *   Indicates that one of the arguments is null.
    * @exception OutOfMemoryError
    *   Indicates insufficient memory for the new sequence.
    **/   
    public static DoubleLinkedSeq concatenation(DoubleLinkedSeq s1, DoubleLinkedSeq s2)
    {
-      // Student will replace this return statement with their own code:
-      return null;
+      DoubleLinkedSeq answer;
+      answer = s1.clone();
+      answer.addAll(s2);
+      return answer;
    }
 
 
@@ -224,8 +254,9 @@ public class DoubleLinkedSeq implements Cloneable
    **/
    public double getCurrent( )
    {
-      // Student will replace this return statement with their own code:
-      return 0;
+      if (cursor == null)
+         throw new IllegalStateException("There is no current element.");
+      return cursor.getData();
    }
 
 
@@ -239,8 +270,10 @@ public class DoubleLinkedSeq implements Cloneable
    **/
    public boolean isCurrent( )
    {
-      // Student will replace this return statement with their own code:
-      return true;
+      if (cursor != null)
+         return true;
+      else
+         return false;
    }
               
    /**
@@ -259,7 +292,14 @@ public class DoubleLinkedSeq implements Cloneable
    **/
    public void removeCurrent( )
    {
-      // Implemented by student.
+      if (cursor == null)
+         throw new IllegalStateException("There is no current element.");
+      DoubleNode temp = head;
+      while (temp.getLink() != cursor)
+         temp = temp.getLink();
+      temp.removeNodeAfter();
+      cursor = temp.getLink();
+      manyNodes--;
    }
                  
    
@@ -271,8 +311,7 @@ public class DoubleLinkedSeq implements Cloneable
    **/ 
    public int size( )
    {
-      // Student will replace this return statement with their own code:
-      return 0;
+      return manyNodes;
    }
    
    
@@ -284,9 +323,98 @@ public class DoubleLinkedSeq implements Cloneable
    *   if this sequence has no elements at all, then there is no current 
    *   element).
    **/ 
-   public void start( )
-   {
-      // Implemented by student.
+   public void start( ) {
+      cursor = head;
+   }
+
+    /**
+    * Set the current element at the front of this sequence.
+    * @param - none
+    * @return
+    *   A string of the current linked sequence is returned
+    *   the string shows all the elements in the sequence
+    *   and the current element
+    **/
+   public String toString( ) {
+      if (head == null)
+         return "";
+
+      DoubleNode temp = head;
+      String answer = "";
+      if (temp == cursor)
+         answer = answer + "(" + temp.getData() + ")";
+      else
+         answer = answer + temp.getData();
+      while (temp.getLink() != null) {
+         temp = temp.getLink();
+         if (temp == cursor)
+            answer = answer + " (" + temp.getData() + ")";
+         else
+            answer = answer +" " + temp.getData();
+      }
+      return answer;
+   }
+
+     /**
+     * return a DoubleLinkedSeq that is the reverse of the current DoubleLinkedSeq.
+     * @param - none
+     * Precondition:
+     *    the DoubleLinkedSeq that is being reversed isn't null
+     * @return
+     *   A string of the current linked sequence is returned
+     *   the string shows all the elements in the sequence
+     *   and the current element
+     **/
+   public DoubleLinkedSeq reverse( ) {
+      DoubleLinkedSeq answer = new DoubleLinkedSeq();
+      DoubleNode temp = head;
+
+      for (int i = 0; i < manyNodes; i++) {
+         answer.addBefore(temp.getData());
+         temp = temp.getLink();
+      }
+      return answer;
+   }
+
+     /**
+     * Takes a double value and deletes all elements in the sequence that
+     * are less than the given value.
+     * @param - value
+     *   The cutoff point for which values will get removed
+     * Precondition:
+     *   The current DoubleLinkedSeq isn't null
+     * Postcondition:
+     *   The current DoubleLinkedSeq no longer contains nodes
+     *   with elements less than the given value.
+     **/
+   public void removeSmaller(double value) {
+      DoubleNode cursor = head;
+      while (cursor != null) {
+         if (cursor.getData() < value)
+            removeCurrent();
+         else
+            advance();
+      }
+   }
+
+    /**
+    * Set the current element at the front of this sequence.
+    * @param - none
+    * Precondition:
+    *    That the current DoubleLinkedSeq isn't null.
+    * @return
+    *   A DoubleLinkedSeq that contains every other element
+    *   of the current DoubleLinkedSeq.
+    **/
+   public DoubleLinkedSeq everyOther( ) {
+      DoubleLinkedSeq answer = new DoubleLinkedSeq();
+      DoubleNode temp = head;
+      answer.addAfter(temp.getData());
+      while (temp.getLink() != null && temp.getLink().getLink() != null) {
+         temp = temp.getLink().getLink();
+         answer.addAfter(temp.getData());
+      }
+      return answer;
    }
 }
            

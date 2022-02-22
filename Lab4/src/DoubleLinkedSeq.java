@@ -33,13 +33,11 @@ public class DoubleLinkedSeq implements Cloneable
    // Invariant of the DoubleLinkedSeq class:
    // 1. The elements of the linked sequence are stored in a linked list.
    // 2. The head reference of the list is in the instance variable head.
-   // 3. The tail reference of the list is in the instance variable tail.
-   // 4. The total number of elements in the list is in the instance
+   // 3. The total number of elements in the list is in the instance
    //    variable manyNodes.
-   // 5. The current element is stored in the instance variable cursor.
+   // 4. The current element is stored in the instance variable cursor.
 
    private DoubleNode head;
-   private DoubleNode tail;
    private int manyNodes;
    private DoubleNode cursor;
    
@@ -54,7 +52,6 @@ public class DoubleLinkedSeq implements Cloneable
       head = null;
       manyNodes = 0;
       cursor = null;
-      tail = null;
 
    } // end of DoubleLinkedSeq
     
@@ -83,10 +80,10 @@ public class DoubleLinkedSeq implements Cloneable
          if (head == null) {
             head = new DoubleNode(element, null);
             manyNodes++;
-            cursor = head;
+            start();
          } // end of if
          else {
-            cursor = head;
+            start();
             while (cursor.getLink() != null)
                cursor = cursor.getLink();
             cursor.addNodeAfter(element);
@@ -115,8 +112,7 @@ public class DoubleLinkedSeq implements Cloneable
       if (cursor != null) {
          if (head == cursor) {
             head = new DoubleNode(element, head);
-            cursor = head;
-            manyNodes++;
+            start();
          }
          else {
             DoubleNode temp = head;
@@ -132,9 +128,9 @@ public class DoubleLinkedSeq implements Cloneable
             head = new DoubleNode(element, head.getLink());
          else
             head = new DoubleNode(element, null);
-         cursor = head;
-         manyNodes++;
+         start();
       } // end of else
+      manyNodes++;
    } // end of addBefore
    
    
@@ -295,10 +291,16 @@ public class DoubleLinkedSeq implements Cloneable
       if (cursor == null)
          throw new IllegalStateException("There is no current element.");
       DoubleNode temp = head;
-      while (temp.getLink() != cursor)
-         temp = temp.getLink();
-      temp.removeNodeAfter();
-      cursor = temp.getLink();
+      if (temp == cursor) {
+         head = head.getLink();
+         start();
+      }else {
+         while (temp.getLink() != cursor)
+            temp = temp.getLink();
+         temp.removeNodeAfter();
+         cursor = temp.getLink();
+
+      } // end of if else
       manyNodes--;
    }
                  
@@ -388,9 +390,9 @@ public class DoubleLinkedSeq implements Cloneable
      *   with elements less than the given value.
      **/
    public void removeSmaller(double value) {
-      DoubleNode cursor = head;
-      while (cursor != null) {
-         if (cursor.getData() < value)
+      start();
+      while (this.cursor != null) {
+         if (this.cursor.getData() < value)
             removeCurrent();
          else
             advance();

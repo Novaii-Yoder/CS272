@@ -18,6 +18,9 @@ public class TestSequence {
         System.out.println("Testing addAfter on l1 now that cursor is not null");
         l1.addAfter(6.0);
 
+        System.out.printf("TEST: Size of l1: %d\n", l1.size());
+        System.out.printf("l1: %s\n", l1.toString());
+
         System.out.println("Testing clone on l1 and saving it to l2");
         l2 = l1.clone();
 
@@ -42,6 +45,7 @@ public class TestSequence {
 
         l1.addAfter(21.2);
         System.out.printf("l1: %s\n", l1.toString());
+        System.out.printf("Size of l1: %d\n", l1.size());
         l4 = l1.everyOther();
         System.out.printf("l4: %s\n", l4.toString());
 
@@ -53,5 +57,7 @@ public class TestSequence {
         System.out.printf("l1: %s\nRemoving everything less than 13.\n", l1.toString());
         l1.removeSmaller(13.0);
         System.out.printf("l1: %s\n", l1.toString());
+        System.out.printf("Size of l1: %d\n", l1.size());
+
     } // end of main
 }

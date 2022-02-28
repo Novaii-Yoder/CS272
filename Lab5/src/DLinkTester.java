@@ -209,15 +209,19 @@ public class DLinkTester {
         if (l1 == null)
             throw new IllegalArgumentException("Can't reverse a null DList");
         // loops through half of the list swaps with the other half
+        if (l1.size() == 0)
+            return;
+        DNode swapperFront = l1.getFirst();
+        DNode swapperEnd = l1.getLast();
+
         for (int i = 0; i < l1.size() / 2; i++) {
-            DNode swapperFront = l1.getFirst();
-            DNode swapperEnd = l1.getLast();
-            // calculates the offset for the nodes we want to swap
-            for (int j = 0; j < i; j++) {
-                swapperFront = swapperFront.getNext();
-                swapperEnd = swapperEnd.getPrev();
-            } // end of for
-            swap(swapperFront, swapperEnd);
+            // swaps the elements of the nodes
+            String temp = swapperFront.getElement();
+            swapperFront.setElement(swapperEnd.getElement());
+            swapperEnd.setElement(temp);
+
+            swapperFront = swapperFront.getNext();
+            swapperEnd = swapperEnd.getPrev();
         } // end of for
     } // end of reverse
 
